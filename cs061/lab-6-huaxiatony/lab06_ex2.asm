@@ -1,0 +1,223 @@
+;=================================================
+; Name: Xia Hua
+; Email:  xhua006@ucr.edu
+; GitHub username: huaxiatony
+;
+; Lab: lab 6
+; Lab section: 023
+; TA: Colvin, Robert
+;=================================================
+;===================
+;Instructions
+;===================
+.orig x3000
+
+LD R4, STORE_ARRAY
+JSRR R4
+
+LD R4, MUL_ARRAY
+JSRR R4
+
+LD R4,PRINT_ARRAY
+JSRR R4
+
+HALT
+;====================
+;Data
+;====================
+BIG_LOOP_COUNTER	.FILL	#10
+NEW_LINE		.FILL	xA
+POSITION		.FILL	#-1
+STORE_ARRAY		.FILL	x3200
+PRINT_ARRAY		.FILL	x3400
+MUL_ARRAY		.FILL	x3600
+
+.orig x4000
+ARRAY_1	.BLKW	#16
+;========
+;Part ONE
+;========
+
+;================================
+;STORE_ARRAY
+;================================
+;Take input and store into array
+.orig x3200
+ST R0, BACKUP_R0_3200
+ST R1, BACKUP_R1_3200
+ST R4, BACKUP_R4_3200
+ST R5, BACKUP_R5_3200
+ST R6, BACKUP_R6_3200
+ST R7, BACKUP_R7_3200
+	LD R4,ARRAY_PTR
+	LD R6,COUNTER
+	LD R1,OFFSET
+
+	LEA R0,Welcome
+	PUTS
+
+LOOP_STORE
+	GETC
+	OUT
+	ADD R0,R0,R1
+	STR R0,R4, #0
+	ADD R4,R4, #1
+	ADD R6,R6, #-1
+	BRp LOOP_STORE
+END_LOOP_STORE
+
+LD R0,BACKUP_R0_3200
+LD R1,BACKUP_R1_3200
+LD R4,BACKUP_R4_3200
+LD R5,BACKUP_R5_3200
+LD R6,BACKUP_R6_3200
+LD R7,BACKUP_R7_3200
+RET
+
+BACKUP_R0_3200 .BLKW #1
+BACKUP_R1_3200 .BLKW #1
+BACKUP_R4_3200 .BLKW #1
+BACKUP_R5_3200 .BLKW #1
+BACKUP_R6_3200 .BLKW #1
+BACKUP_R7_3200 .BLKW #1
+;===================
+;Data
+;===================
+Welcome         .STRINGZ "Please enter your 16 digit binary numbers. No 'b' needed.\n"
+ARRAY_PTR	.FILL	x4000
+ZERO		.FILL	#0
+ONE		.FILL	#1
+COUNTER		.FILL	#16
+OFFSET		.FILL	#-48
+
+
+;========
+;Part TWO
+;========
+
+
+;==========================
+;PRINT_ARRAY
+;===========================
+;Printing the array
+.orig x3400
+ST R0, BACKUP_R0_3400
+ST R2, BACKUP_R2_3400
+ST R3, BACKUP_R3_3400
+ST R4, BACKUP_R4_3400
+ST R5, BACKUP_R5_3400
+ST R6, BACKUP_R6_3400
+ST R7, BACKUP_R7_3400
+	
+LD R4,ARRAY_PTR_P
+LD R5,SPACE_COUNTER
+LD R2,HEX_30
+LD R0,NEWLINE_3400
+OUT
+LD R0,DEC_b
+OUT
+
+LOOP_PRINT
+	LD R6, SPACE_COUNTER	
+	LOOP_SP
+		LDR R0,R4,#0
+		ADD R0,R0,R2
+		OUT
+		ADD R4,R4,#1
+		ADD R6,R6,#-1
+		BRp LOOP_SP
+	LD R0,SPACE
+	OUT
+	
+	ADD R5,R5,#-1
+	BRp LOOP_PRINT
+	END_LOOP_SP
+END_LOOP_PRINT
+
+LD R0,BACKUP_R0_3400
+LD R2,BACKUP_R2_3400
+LD R3,BACKUP_R3_3400
+LD R4,BACKUP_R4_3400
+LD R5,BACKUP_R5_3400
+LD R6,BACKUP_R6_3400
+LD R7,BACKUP_R7_3400
+RET
+
+BACKUP_R0_3400 .BLKW #1
+BACKUP_R2_3400 .BLKW #1
+BACKUP_R3_3400 .BLKW #1
+BACKUP_R4_3400 .BLKW #1
+BACKUP_R5_3400 .BLKW #1
+BACKUP_R6_3400 .BLKW #1
+BACKUP_R7_3400 .BLKW #1
+;==================
+;Data
+;==================
+ARRAY_PTR_P	.FILL	x4000
+SPACE		.FILL	#32
+HEX_30		.FILL	x30
+NEWLINE_3400	.FILL	#10
+DEC_b		.FILL	#98
+SPACE_COUNTER	.FILL	#4
+
+;=============
+;Part THREE
+;=============
+
+;============================
+;MUL_ARRAY
+;===========================
+;Subrouting of making Input to a number
+.orig x3600
+ST R0, BACKUP_R0_3600
+;ST R1, BACKUP_R1_3600
+ST R4, BACKUP_R4_3600
+ST R5, BACKUP_R5_3600
+ST R6, BACKUP_R6_3600
+ST R7, BACKUP_R7_3600
+
+	LD R4,ARRAY_PTR_M
+	LD R5,COUNTER_M
+	LD R6,MINUS_ONE
+	LD R1,RESULT
+
+LOOP_MUL
+	LDR R0,R4,#0
+	ADD R0,R0,R6
+	BRz ADD_ONE
+
+        ADD_ZERO
+                ADD R1,R1,R1
+                BR BR_REST
+
+	ADD_ONE
+		ADD R1,R1,R1
+		ADD R1,R1,#1
+	
+	BR_REST
+		ADD R4,R4,#1
+		ADD R5,R5,#-1
+		BRp LOOP_MUL
+END_LOOP_MUL
+
+LD R0,BACKUP_R0_3600
+;LD R1,BACKUP_R1_3600
+LD R4,BACKUP_R4_3600
+LD R5,BACKUP_R5_3600
+LD R6,BACKUP_R6_3600
+LD R7,BACKUP_R7_3600
+RET
+
+BACKUP_R0_3600 .BLKW #1
+BACKUP_R4_3600 .BLKW #1
+BACKUP_R5_3600 .BLKW #1
+BACKUP_R6_3600 .BLKW #1
+BACKUP_R7_3600 .BLKW #1
+;==================
+;Data
+;=================
+ARRAY_PTR_M 	.FILL	x4000
+COUNTER_M	.FILL	#16
+MINUS_ONE	.FILL	#-1
+RESULT		.FILL	#0
+

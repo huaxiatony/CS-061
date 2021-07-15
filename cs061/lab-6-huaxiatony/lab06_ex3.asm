@@ -1,0 +1,194 @@
+;=================================================
+; Name: Xia Hua
+; Email:  xhua006@ucr.edu
+; GitHub username: huaxiatony
+;
+; Lab: lab 6
+; Lab section: 023
+; TA: Colvin, Robert
+;=================================================
+;==================
+;Main Function
+;==================
+.orig x3000
+LD R4,INPUT
+JSRR R4
+
+LD R4,OUTPUT
+JSRR R4
+
+HALT
+;==================
+;Data
+;==================
+INPUT	.FILL	x3200
+OUTPUT	.FILL	x3400
+
+;================
+;Array Data
+;=================
+.orig x4000
+ARRAY_1	.BLKW	#16
+
+;==================
+;Input Loop
+;==================
+.orig x3200
+ST	R0,BACKUP_R0_3200
+ST      R1,BACKUP_R1_3200
+ST	R2,BACKUP_R2_3200
+ST	R3,BACKUP_R3_3200
+ST	R4,BACKUP_R4_3200
+ST	R5,BACKUP_R5_3200
+ST	R7,BACKUP_R7_3200
+	
+	LEA R0,Welcome
+	Trap x22
+CHECK_B
+	Trap x20
+	Trap x21
+	LD R3,NEGATIVE_B
+	ADD R4,R0,R3
+	BRz END_CHECK_B
+	LEA R0,NOT_B
+	Trap x22
+	BRnzp CHECK_B
+END_CHECK_B
+
+LD R5,ARRAY_PTR
+LD R1,COUNTER
+
+INPUT_LOOP
+	Trap x20
+	Trap x21
+	LD R3,NEGATIVE_SPACE
+	ADD R4,R0,R3
+	BRz INPUT_LOOP
+	
+	LD R3,NEGATIVE_ZERO
+	ADD R4,R0,R3
+	BRz CONTINUE
+
+        LD R3,NEGATIVE_ONE
+        ADD R4,R0,R3
+        BRz CONTINUE
+
+	LEA R0,NOT_NUM	
+	Trap x22
+	BRnzp INPUT_LOOP
+
+CONTINUE
+	LD R3,NEGATIVE_ZERO
+	ADD R2,R2,R2
+	ADD R4,R0,R3	
+	BRz COUNTER_REDUCE
+	ADD R2,R2,#1
+
+COUNTER_REDUCE
+	STR R0,R5,#0
+	ADD R5,R5,#1
+	ADD R1,R1,#-1
+	BRp INPUT_LOOP
+END_INPUT_LOOP
+
+LD R0,BACKUP_R0_3200
+LD R1,BACKUP_R1_3200
+LD R2,BACKUP_R2_3200
+LD R3,BACKUP_R3_3200
+LD R4,BACKUP_R4_3200
+LD R5,BACKUP_R5_3200
+;LD R6,BACKUP_R6_3200
+LD R7,BACKUP_R7_3200
+RET
+
+BACKUP_R0_3200		.BLKW #1
+BACKUP_R1_3200		.BLKW #1
+BACKUP_R2_3200          .BLKW #1
+BACKUP_R3_3200		.BLKW #1
+BACKUP_R4_3200		.BLKW #1
+BACKUP_R5_3200		.BLKW #1
+BACKUP_R7_3200		.BLKW #1
+;==================
+;Data
+;==================
+Welcome			.STRINGZ	"Please enter 'b' followed by 16-bit binary number: \n"
+NOT_B                   .STRINGZ 	"\nPlease enter 'b'.\n"
+NOT_NUM                 .STRINGZ 	"\nPlease enter '0' and '1'. \n"
+COUNTER			.FILL 		#16
+NEGATIVE_B		.FILL #-98
+NEGATIVE_SPACE		.FILL #-32
+NEGATIVE_ZERO		.FILL #-48
+NEGATIVE_ONE		.FILL #-49
+ARRAY_PTR	.FILL	x4000
+
+;==================
+;Output Loop
+;==================
+;==========================
+;PRINT_ARRAY
+;===========================
+;Printing the array
+.orig x3400
+ST R0, BACKUP_R0_3400
+ST R2, BACKUP_R2_3400
+ST R3, BACKUP_R3_3400
+ST R4, BACKUP_R4_3400
+ST R5, BACKUP_R5_3400
+ST R6, BACKUP_R6_3400
+ST R7, BACKUP_R7_3400
+	
+LD R5,ARRAY_PTR_P
+LD R4,SPACE_COUNTER
+LD R2,HEX_30
+LD R3,DEC_48
+
+LD R0,NEWLINE_3400
+OUT
+LD R0,DEC_b
+OUT
+
+LOOP_PRINT
+	LD R6, SPACE_COUNTER	
+	LOOP_SP
+		LDR R0,R5,#0
+		ADD R0,R0,R2
+		ADD R0,R0,R3
+		OUT
+		ADD R5,R5,#1
+		ADD R6,R6,#-1
+		BRp LOOP_SP
+	LD R0,SPACE
+	OUT
+	
+	ADD R4,R4,#-1
+	BRp LOOP_PRINT
+	END_LOOP_SP
+END_LOOP_PRINT
+
+LD R0,BACKUP_R0_3400
+LD R2,BACKUP_R2_3400
+LD R3,BACKUP_R3_3400
+LD R4,BACKUP_R4_3400
+LD R5,BACKUP_R5_3400
+LD R6,BACKUP_R6_3400
+LD R7,BACKUP_R7_3400
+RET
+
+BACKUP_R0_3400 .BLKW #1
+BACKUP_R2_3400 .BLKW #1
+BACKUP_R3_3400 .BLKW #1
+BACKUP_R4_3400 .BLKW #1
+BACKUP_R5_3400 .BLKW #1
+BACKUP_R6_3400 .BLKW #1
+BACKUP_R7_3400 .BLKW #1
+;==================
+;Data
+;==================
+ARRAY_PTR_P	.FILL	x4000
+DEC_48		.FILL	#-48
+SPACE		.FILL	#32
+HEX_30		.FILL	x30
+NEWLINE_3400	.FILL	#10
+DEC_b		.FILL	#98
+SPACE_COUNTER	.FILL	#4
+
